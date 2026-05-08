@@ -1,4 +1,5 @@
 # 📦 StockFlow v2.0 — Dashboard de Gestión de Activos TI
+🌐 **[Ver demo en vivo](https://yuranimar.github.io/stockflow-react/)**
 
 > SPA migrada a React para control de inventario empresarial en tiempo real.
 
