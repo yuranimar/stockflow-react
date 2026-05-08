@@ -7,17 +7,16 @@ export default defineConfig({
   base: '/stockflow-react/',
 
   build: {
-    sourcemap: false,
-    minify: 'esbuild',  // ← solo esto cambia
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('chart.js')) return 'chart';
-          if (id.includes('xlsx')) return 'xlsx';
-        }
+  sourcemap: false,
+  rollupOptions: {
+    output: {
+      manualChunks: (id) => {
+        if (id.includes('chart.js')) return 'chart';
+        if (id.includes('xlsx')) return 'xlsx';
       }
     }
-  },
+  }
+},
 
   server: {
     port: 3000,
