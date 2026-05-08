@@ -2,9 +2,6 @@
 
 > SPA migrada a React para control de inventario empresarial en tiempo real.
 
-**🔗 Live Demo:** https://stockflow-react.vercel.app  
-**Stack:** React 19 · Vite · Chart.js · SheetJS · localStorage
-
 ---
 
 ## 🎯 Problema que resuelve
