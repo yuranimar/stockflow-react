@@ -1,24 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useInventario } from "../context/InventarioContext";
 
 const categorias = ["Hardware", "Software", "Redes", "Perifericos"];
 const camposVacios = { nombre: "", cantidad: "", precio: "", categoria: "Hardware" };
 
 export default function FormularioProducto() {
-  const { agregarProducto, editarProducto } = useInventario();
-  const [campos, setCampos]       = useState(camposVacios);
-  const [errores, setErrores]     = useState({});
-  const [editIndex, setEditIndex] = useState(null);
+  const { agregarProducto, editarProducto, productoEnEdicion, setProductoEnEdicion } = useInventario();
+  const [campos, setCampos]   = useState(camposVacios);
+  const [errores, setErrores] = useState({});
 
-  window.__prepararEdicion = (index, producto) => {
-    setEditIndex(index);
-    setCampos({
-      nombre:    producto.nombre,
-      cantidad:  producto.cantidad,
-      precio:    producto.precio,
-      categoria: producto.categoria,
-    });
-  };
+  // Bug 1 fix: leer el producto a editar del Context, sin window.*
+  useEffect(() => {
+    if (productoEnEdicion) {
+      const { datos } = productoEnEdicion;
+      setCampos({
+        nombre:    datos.nombre,
+        cantidad:  datos.cantidad,
+        precio:    datos.precio,
+        categoria: datos.categoria,
+      });
+      setErrores({});
+    }
+  }, [productoEnEdicion]);
 
   function validar() {
     const e = {};
@@ -40,20 +43,18 @@ export default function FormularioProducto() {
       precio:    parseFloat(campos.precio),
       categoria: campos.categoria,
     };
-    if (editIndex !== null) {
-      editarProducto(editIndex, datos);
+    if (productoEnEdicion !== null) {
+      editarProducto(productoEnEdicion.index, datos);
     } else {
       agregarProducto(datos);
     }
-    setCampos(camposVacios);
-    setErrores({});
-    setEditIndex(null);
+    cancelar();
   }
 
   function cancelar() {
     setCampos(camposVacios);
     setErrores({});
-    setEditIndex(null);
+    setProductoEnEdicion(null);
   }
 
   function handleChange(e) {
@@ -111,9 +112,9 @@ export default function FormularioProducto() {
 
         <div className="form-actions">
           <button onClick={handleSubmit}>
-            {editIndex !== null ? "Guardar Cambios" : "+ Agregar"}
+            {productoEnEdicion !== null ? "Guardar Cambios" : "+ Agregar"}
           </button>
-          {editIndex !== null && (
+          {productoEnEdicion !== null && (
             <button className="btn-cancelar" onClick={cancelar}>Cancelar</button>
           )}
         </div>

@@ -12,10 +12,10 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: {
-          'chart': ['chart.js', 'react-chartjs-2'],
-          'xlsx': ['xlsx'],
-        }
+       manualChunks: (id) => {
+  if (id.includes('chart.js')) return 'chart';
+  if (id.includes('xlsx')) return 'xlsx';
+}
       }
     }
   },

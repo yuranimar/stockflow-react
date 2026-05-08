@@ -3,10 +3,10 @@ import { useInventario } from "../context/InventarioContext";
 import { formatearPrecio } from "../utils/formato";
 
 export default function TablaInventario() {
-  const { inventario, eliminarProducto } = useInventario();
-  const [busqueda, setBusqueda]     = useState("");
-  const [categoria, setCategoria]   = useState("Todos");
-  const [pagina, setPagina]         = useState(1);
+  const { inventario, eliminarProducto, setProductoEnEdicion } = useInventario();
+  const [busqueda, setBusqueda]   = useState("");
+  const [categoria, setCategoria] = useState("Todos");
+  const [pagina, setPagina]       = useState(1);
   const POR_PAGINA = 10;
 
   const filtrados = inventario.filter(p => {
@@ -87,7 +87,10 @@ export default function TablaInventario() {
                   </td>
                   <td>{formatearPrecio(prod.precio * prod.cantidad)}</td>
                   <td>
-                    <button className="btn-edit" onClick={() => window.__prepararEdicion(realIndex, prod)}>✏️</button>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setProductoEnEdicion({ index: realIndex, datos: prod })}
+                    >✏️</button>
                     <button className="btn-delete" onClick={() => {
                       if (confirm("Eliminar " + prod.nombre + "?")) eliminarProducto(realIndex);
                     }}>🗑️</button>
