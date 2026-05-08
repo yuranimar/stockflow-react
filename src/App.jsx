@@ -11,8 +11,12 @@ import "./App.css";
 
 export default function App() {
   const [seccion, setSeccion] = useState("inventario");
-  const [temaClaro, setTemaClaro] = useState(localStorage.getItem("tema") === "light");
+
+  // Fix: lazy initializer — evita leer localStorage en cada render
+  const [temaClaro, setTemaClaro] = useState(() => localStorage.getItem("tema") === "light");
+
   const [verModal, setVerModal] = useState(false);
+  const [exportando, setExportando] = useState(false); // Fix: feedback al exportar
   const { inventario, despachos } = useInventario();
   const criticos = inventario.filter(p => p.cantidad < 5);
 
@@ -26,8 +30,10 @@ export default function App() {
     }
   }, [temaClaro]);
 
-  function exportarExcel() {
-    import("xlsx").then(XLSX => {
+  async function exportarExcel() {
+    setExportando(true);
+    try {
+      const XLSX = await import("xlsx");
       const wb = XLSX.utils.book_new();
       const wsInv = XLSX.utils.json_to_sheet(inventario.map(p => ({
         ID: p.id,
@@ -49,7 +55,9 @@ export default function App() {
         XLSX.utils.book_append_sheet(wb, wsDes, "Despachos");
       }
       XLSX.writeFile(wb, `StockFlow_${new Date().toISOString().split("T")[0]}.xlsx`);
-    });
+    } finally {
+      setExportando(false);
+    }
   }
 
   return (
@@ -59,25 +67,38 @@ export default function App() {
           <div className="profile-box">
             <div className="avatar">YM</div>
             <h3>Yurani Martínez</h3>
-            <p>Junior Fullstack Developer</p>
+            {/* Fix: título profesional real */}
+            <p>Tecnóloga en Desarrollo de Software</p>
             <span className="badge-aprende">🟢 Disponible</span>
           </div>
 
           <nav>
+            {/* Fix: template literals en className */}
             <button
-              className={"nav-btn " + (seccion === "inventario" ? "active" : "")}
+              className={`nav-btn ${seccion === "inventario" ? "active" : ""}`}
               onClick={() => setSeccion("inventario")}
             >
               📦 Inventario
             </button>
             <button
-              className={"nav-btn " + (seccion === "despachos" ? "active" : "")}
+              className={`nav-btn ${seccion === "despachos" ? "active" : ""}`}
               onClick={() => setSeccion("despachos")}
             >
               🚚 Despachos
             </button>
-            <button className="nav-btn" onClick={exportarExcel}>
-              📊 Exportar Excel
+            <button
+              className={`nav-btn ${seccion === "grafico" ? "active" : ""}`}
+              onClick={() => setSeccion("grafico")}
+            >
+              📈 Gráfico
+            </button>
+            {/* Fix: feedback visual al exportar */}
+            <button
+              className="nav-btn"
+              onClick={exportarExcel}
+              disabled={exportando}
+            >
+              {exportando ? "⏳ Generando..." : "📊 Exportar Excel"}
             </button>
             <button className="nav-btn" onClick={() => setVerModal(true)}>
               ℹ️ Acerca de
@@ -108,7 +129,7 @@ export default function App() {
 
           {criticos.length > 0 && (
             <div className="alerta-stock-banner">
-              ⚠️ <strong>{criticos.length} producto(s) con stock critico:</strong>{" "}
+              ⚠️ <strong>{criticos.length} producto(s) con stock crítico:</strong>{" "}
               {criticos.map(p => p.nombre).join(", ")}
             </div>
           )}
@@ -119,9 +140,17 @@ export default function App() {
               <FormularioProducto />
               <div className="dashboard-body">
                 <TablaInventario />
-                <Grafico />
               </div>
               <Logs />
+            </>
+          )}
+
+          {seccion === "grafico" && (
+            <>
+              <KPIs />
+              <div className="dashboard-body">
+                <Grafico />
+              </div>
             </>
           )}
 
