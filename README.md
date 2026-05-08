@@ -43,5 +43,3 @@ StockFlow centraliza inventario, despachos y métricas en tiempo real desde una 
 | 📝 **Auditoría** | Log de todas las acciones con timestamp |
 
 ---
-
-## 🛠 Arquitectura
